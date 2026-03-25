@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>个人主页 · 高校教师</title>
+  <style>
+    /* ── CSS Reset & Variables ──────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d1117;
+      --bg-card:   #161b22;
+      --bg-hover:  #1f2937;
+      --border:    #30363d;
+      --accent:    #58a6ff;
+      --accent2:   #3fb950;
+      --text:      #c9d1d9;
+      --text-dim:  #8b949e;
+      --text-head: #e6edf3;
+      --radius:    10px;
+      --font:      'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Grid canvas dots ───────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: -1;
+      background-image:
+        radial-gradient(circle, rgba(88,166,255,.08) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+
+    /* ── Navigation ─────────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5vw;
+      height: 60px;
+      background: rgba(13,17,23,.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .logo {
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--text-head);
+      letter-spacing: .03em;
+    }
+    nav ul { list-style: none; display: flex; gap: 28px; }
+    nav ul li a {
+      color: var(--text-dim); font-size: .9rem;
+      transition: color .2s;
+    }
+    nav ul li a:hover, nav ul li a.active { color: var(--accent); text-decoration: none; }
+
+    /* ── Sections ───────────────────────────────────────────────────── */
+    section { padding: 80px 5vw; max-width: 960px; margin: 0 auto; }
+
+    .section-title {
+      font-size: 1.4rem; font-weight: 700;
+      color: var(--text-head);
+      margin-bottom: 36px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1; height: 1px;
+      background: var(--border);
+    }
+    .tag {
+      display: inline-block;
+      font-size: .72rem; font-weight: 600;
+      padding: 2px 8px; border-radius: 20px;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      vertical-align: middle;
+    }
+
+    /* ── Hero ───────────────────────────────────────────────────────── */
+    #hero {
+      min-height: 82vh;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 40px; flex-wrap: wrap;
+      padding-top: 60px; padding-bottom: 60px;
+    }
+    .hero-text { flex: 1; min-width: 280px; }
+    .hero-text .greeting {
+      font-size: .9rem; color: var(--accent2);
+      letter-spacing: .12em; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .hero-text h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      color: var(--text-head); font-weight: 800;
+      line-height: 1.2; margin-bottom: 12px;
+    }
+    .hero-text .title-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: .92rem; color: var(--text-dim);
+      margin-bottom: 20px;
+    }
+    .hero-text .title-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent2); }
+    .hero-text p { color: var(--text-dim); max-width: 500px; }
+    .hero-btns { display: flex; gap: 14px; margin-top: 28px; flex-wrap: wrap; }
+    .btn {
+      padding: 10px 22px; border-radius: var(--radius);
+      font-size: .88rem; font-weight: 600; cursor: pointer;
+      transition: opacity .2s, transform .15s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn:hover { opacity: .85; transform: translateY(-2px); text-decoration: none; }
+    .btn-primary { background: var(--accent); color: #0d1117; }
+    .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+
+    /* Avatar / QR side */
+    .hero-aside { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+    .avatar-ring {
+      width: 160px; height: 160px; border-radius: 50%;
+      padding: 3px;
+      background: conic-gradient(var(--accent), var(--accent2), var(--accent));
+      box-shadow: 0 0 30px rgba(88,166,255,.25);
+    }
+    .avatar-ring img {
+      width: 100%; height: 100%;
+      border-radius: 50%; object-fit: cover;
+      background: var(--bg-card);
+      display: block;
+    }
+
+    /* ── Stats row ──────────────────────────────────────────────────── */
+    .stats-row {
+      display: flex; gap: 20px; flex-wrap: wrap;
+      margin-top: 36px;
+    }
+    .stat-card {
+      flex: 1; min-width: 130px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      text-align: center;
+      transition: border-color .2s, transform .2s;
+    }
+    .stat-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+    .stat-card .num { font-size: 1.9rem; font-weight: 800; color: var(--text-head); }
+    .stat-card .label { font-size: .78rem; color: var(--text-dim); margin-top: 4px; }
+
+    /* ── About ──────────────────────────────────────────────────────── */
+    #about .about-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+    @media (max-width: 640px) { #about .about-grid { grid-template-columns: 1fr; } }
+    .info-block {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+    }
+    .info-block h3 { font-size: .95rem; color: var(--text-dim); margin-bottom: 14px; }
+    .info-item { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+    .info-item:last-child { border-bottom: none; }
+    .info-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; margin-top: 2px; }
+    .info-content .label { font-size: .75rem; color: var(--text-dim); }
+    .info-content .value { font-size: .88rem; color: var(--text-head); }
+
+    /* ── Research ───────────────────────────────────────────────────── */
+    .research-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .research-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+      transition: border-color .2s, transform .2s;
+      cursor: default;
+    }
+    .research-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+    .research-card .icon { font-size: 1.8rem; margin-bottom: 12px; }
+    .research-card h3 { font-size: .98rem; color: var(--text-head); margin-bottom: 8px; }
+    .research-card p { font-size: .83rem; color: var(--text-dim); }
+
+    /* ── Publications ───────────────────────────────────────────────── */
+    .pub-list { display: flex; flex-direction: column; gap: 16px; }
+    .pub-item {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 22px;
+      display: flex; gap: 16px; align-items: flex-start;
+      transition: border-color .2s;
+    }
+    .pub-item:hover { border-color: var(--accent2); }
+    .pub-year {
+      font-size: .8rem; font-weight: 700;
+      color: var(--accent2); min-width: 42px;
+      margin-top: 3px;
+    }
+    .pub-body h4 { font-size: .93rem; color: var(--text-head); margin-bottom: 4px; }
+    .pub-body .authors { font-size: .8rem; color: var(--text-dim); }
+    .pub-body .venue { font-size: .8rem; color: var(--accent); margin-top: 4px; }
+
+    /* ── Teaching ───────────────────────────────────────────────────── */
+    .course-list {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .course-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px 20px;
+      transition: border-color .2s, transform .2s;
+    }
+    .course-card:hover { border-color: var(--accent2); transform: translateY(-2px); }
+    .course-card .semester { font-size: .73rem; color: var(--text-dim); margin-bottom: 6px; }
+    .course-card h4 { font-size: .92rem; color: var(--text-head); margin-bottom: 4px; }
+    .course-card p { font-size: .79rem; color: var(--text-dim); }
+
+    /* ── Contact ────────────────────────────────────────────────────── */
+    #contact .contact-grid {
+      display: grid; grid-template-columns: 1fr auto;
+      gap: 36px; align-items: start;
+    }
+    @media (max-width: 640px) {
+      #contact .contact-grid { grid-template-columns: 1fr; }
+    }
+    .contact-info { display: flex; flex-direction: column; gap: 16px; }
+    .contact-row {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 20px;
+      display: flex; align-items: center; gap: 14px;
+      transition: border-color .2s;
+    }
+    .contact-row:hover { border-color: var(--accent); }
+    .contact-row .c-icon { font-size: 1.2rem; width: 28px; text-align: center; }
+    .contact-row .c-label { font-size: .75rem; color: var(--text-dim); }
+    .contact-row .c-val { font-size: .9rem; color: var(--text-head); }
+
+    /* QR Card */
+    .qr-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 22px 20px;
+      text-align: center; min-width: 180px;
+    }
+    .qr-card p { font-size: .78rem; color: var(--text-dim); margin-top: 10px; }
+    #qr-code {
+      width: 140px; height: 140px;
+      margin: 0 auto;
+    }
+    #qr-code img {
+      width: 140px; height: 140px;
+      border-radius: 6px;
+    }
+
+    /* ── Footer ─────────────────────────────────────────────────────── */
+    footer {
+      text-align: center; padding: 36px 20px;
+      border-top: 1px solid var(--border);
+      font-size: .8rem; color: var(--text-dim);
+    }
+
+    /* ── Animations ─────────────────────────────────────────────────── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate { animation: fadeInUp .6s ease both; }
+    .delay-1 { animation-delay: .15s; }
+    .delay-2 { animation-delay: .30s; }
+    .delay-3 { animation-delay: .45s; }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navigation ───────────────────────────────────────────────── -->
+  <nav>
+    <span class="logo">&#x1F393; 教师主页</span>
+    <ul>
+      <li><a href="#hero">首页</a></li>
+      <li><a href="#about">简介</a></li>
+      <li><a href="#research">研究</a></li>
+      <li><a href="#publications">论文</a></li>
+      <li><a href="#teaching">教学</a></li>
+      <li><a href="#contact">联系</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── Hero ─────────────────────────────────────────────────────── -->
+  <section id="hero">
+    <div class="hero-text animate">
+      <div class="greeting">Welcome to my homepage</div>
+      <h1>张 明 <span style="color:var(--accent)">教授</span></h1>
+      <div class="title-badge">
+        <span class="dot"></span>
+        计算机科学与技术学院 · 某某大学
+      </div>
+      <p>
+        从事计算机视觉、深度学习与三维重建方向的科学研究与人才培养工作。
+        主持国家自然科学基金项目多项，在 CVPR、ICCV、NeurIPS 等顶级会议发表论文 40 余篇。
+      </p>
+      <div class="hero-btns">
+        <a class="btn btn-primary" href="#publications">📄 查看论文</a>
+        <a class="btn btn-outline" href="#contact">✉ 联系我</a>
+      </div>
+
+      <div class="stats-row delay-1 animate">
+        <div class="stat-card"><div class="num">40<span style="color:var(--accent)">+</span></div><div class="label">发表论文</div></div>
+        <div class="stat-card"><div class="num">12</div><div class="label">科研项目</div></div>
+        <div class="stat-card"><div class="num">8</div><div class="label">指导博士</div></div>
+        <div class="stat-card"><div class="num">1200<span style="color:var(--accent2)">+</span></div><div class="label">Google引用</div></div>
+      </div>
+    </div>
+
+    <div class="hero-aside animate delay-2">
+      <div class="avatar-ring">
+        <!-- Replace with an actual photo: <img src="photo.jpg" alt="头像"> -->
+        <img src="https://via.placeholder.com/160/161b22/58a6ff?text=ZM" alt="头像" />
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:.8rem;color:var(--text-dim)">博士生导师</div>
+        <div style="font-size:.8rem;color:var(--accent2)">&#x1F3C5; 国家优秀青年科学基金获得者</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── About ─────────────────────────────────────────────────────── -->
+  <section id="about">
+    <div class="section-title">个人简介</div>
+    <div class="about-grid">
+      <div class="info-block">
+        <h3>基本信息</h3>
+        <div class="info-item">
+          <span class="info-icon">🎓</span>
+          <div class="info-content">
+            <div class="label">职称 / 职务</div>
+            <div class="value">教授 · 博士生导师</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <span class="info-icon">🏛</span>
+          <div class="info-content">
+            <div class="label">所在单位</div>
+            <div class="value">某某大学 · 计算机科学与技术学院</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <span class="info-icon">📍</span>
+          <div class="info-content">
+            <div class="label">办公室</div>
+            <div class="value">信息楼 A312</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <span class="info-icon">🌐</span>
+          <div class="info-content">
+            <div class="label">Google Scholar</div>
+            <div class="value"><a href="#">scholar.google.com</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-block">
+        <h3>教育背景</h3>
+        <div class="info-item">
+          <span class="info-icon">🔬</span>
+          <div class="info-content">
+            <div class="label">博士 · 2010–2014</div>
+            <div class="value">某某大学 · 计算机视觉</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <span class="info-icon">📖</span>
+          <div class="info-content">
+            <div class="label">硕士 · 2008–2010</div>
+            <div class="value">某某大学 · 模式识别</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <span class="info-icon">📚</span>
+          <div class="info-content">
+            <div class="label">学士 · 2004–2008</div>
+            <div class="value">某某大学 · 计算机科学</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <span class="info-icon">🏢</span>
+          <div class="info-content">
+            <div class="label">访问学者 · 2016–2017</div>
+            <div class="value">斯坦福大学 · 计算机系</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Research ───────────────────────────────────────────────────── -->
+  <section id="research">
+    <div class="section-title">研究方向</div>
+    <div class="research-grid">
+      <div class="research-card">
+        <div class="icon">🧊</div>
+        <h3>三维重建与理解</h3>
+        <p>基于深度学习的三维场景重建、物体形状感知与语义理解。</p>
+      </div>
+      <div class="research-card">
+        <div class="icon">🤖</div>
+        <h3>生成式模型</h3>
+        <p>扩散模型、GAN 及其在图像/三维内容生成中的应用与优化。</p>
+      </div>
+      <div class="research-card">
+        <div class="icon">👁</div>
+        <h3>计算机视觉</h3>
+        <p>目标检测、语义分割、深度估计及多模态视觉-语言模型。</p>
+      </div>
+      <div class="research-card">
+        <div class="icon">🔗</div>
+        <h3>具身智能</h3>
+        <p>机器人感知与操作、视觉引导的操控策略学习。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Publications ───────────────────────────────────────────────── -->
+  <section id="publications">
+    <div class="section-title">代表性论文</div>
+    <div class="pub-list">
+      <div class="pub-item">
+        <div class="pub-year">2024</div>
+        <div class="pub-body">
+          <h4>Unique3D: High-Quality and Efficient 3D Mesh Generation from a Single Image</h4>
+          <div class="authors">Kailu Wu, Fangfu Liu, Zhihan Cai, Runjie Yan, Hanyang Wang, Yating Hu, Yueqi Duan, <strong>Zhang Ming</strong></div>
+          <div class="venue">🏆 NeurIPS 2024</div>
+        </div>
+      </div>
+      <div class="pub-item">
+        <div class="pub-year">2023</div>
+        <div class="pub-body">
+          <h4>DiffusionScene: Latent Score Diffusion Model for Controllable 3D Scene Generation</h4>
+          <div class="authors"><strong>Zhang Ming</strong>, Wei Liu, Jun Hou, Xiao Chen</div>
+          <div class="venue">🏆 ICCV 2023</div>
+        </div>
+      </div>
+      <div class="pub-item">
+        <div class="pub-year">2023</div>
+        <div class="pub-body">
+          <h4>SemDiff: Semantic-Aware Diffusion Model for Image Editing</h4>
+          <div class="authors">Yuqi Wang, <strong>Zhang Ming</strong>, Lei Zhang</div>
+          <div class="venue">🏆 CVPR 2023</div>
+        </div>
+      </div>
+      <div class="pub-item">
+        <div class="pub-year">2022</div>
+        <div class="pub-body">
+          <h4>Neural Implicit Shape Learning with Occupancy Networks</h4>
+          <div class="authors"><strong>Zhang Ming</strong>, Haoran Li, Peng Sun, et al.</div>
+          <div class="venue">🏆 ECCV 2022</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:20px;text-align:center">
+      <a class="btn btn-outline" href="#">查看全部论文 →</a>
+    </div>
+  </section>
+
+  <!-- ── Teaching ────────────────────────────────────────────────────── -->
+  <section id="teaching">
+    <div class="section-title">教学课程</div>
+    <div class="course-list">
+      <div class="course-card">
+        <div class="semester">秋季学期 · 本科生</div>
+        <h4>计算机视觉基础</h4>
+        <p>图像处理、特征提取、分类与检测算法</p>
+      </div>
+      <div class="course-card">
+        <div class="semester">春季学期 · 研究生</div>
+        <h4>深度学习与应用</h4>
+        <p>神经网络理论、优化方法与前沿进展</p>
+      </div>
+      <div class="course-card">
+        <div class="semester">秋季学期 · 研究生</div>
+        <h4>三维视觉与重建</h4>
+        <p>点云处理、NeRF、三维生成模型</p>
+      </div>
+      <div class="course-card">
+        <div class="semester">全年 · 本科毕设</div>
+        <h4>毕业设计指导</h4>
+        <p>面向计算机视觉方向的创新课题指导</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Contact ─────────────────────────────────────────────────────── -->
+  <section id="contact">
+    <div class="section-title">联系方式</div>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <div class="contact-row">
+          <span class="c-icon">📧</span>
+          <div>
+            <div class="c-label">电子邮件</div>
+            <div class="c-val">zhangming@university.edu.cn</div>
+          </div>
+        </div>
+        <div class="contact-row">
+          <span class="c-icon">📞</span>
+          <div>
+            <div class="c-label">办公电话</div>
+            <div class="c-val">+86-10-1234-5678</div>
+          </div>
+        </div>
+        <div class="contact-row">
+          <span class="c-icon">🏢</span>
+          <div>
+            <div class="c-label">办公室地址</div>
+            <div class="c-val">某某大学信息楼 A312，北京市 100000</div>
+          </div>
+        </div>
+        <div class="contact-row">
+          <span class="c-icon">💬</span>
+          <div>
+            <div class="c-label">微信 / WeChat</div>
+            <div class="c-val">扫描右侧二维码添加</div>
+          </div>
+        </div>
+        <div class="contact-row">
+          <span class="c-icon">🕐</span>
+          <div>
+            <div class="c-label">接待时间</div>
+            <div class="c-val">周一至周五 10:00–12:00（预约优先）</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QR Code -->
+      <div class="qr-card">
+        <div id="qr-code">
+          <canvas id="qr-canvas"></canvas>
+        </div>
+        <p>微信 / 名片二维码<br>扫码添加联系</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ──────────────────────────────────────────────────────── -->
+  <footer>
+    <p>© <span id="year"></span> 张明 · 某某大学 · 计算机科学与技术学院</p>
+    <p style="margin-top:6px">Built with ❤ · Last updated <span id="updated"></span></p>
+  </footer>
+
+  <!-- ── QR Code Generator (pure JS, no CDN dependency) ─────────────── -->
+  <script>
+    /* ── Year / date ───────────────────────────────── */
+    document.getElementById('year').textContent = new Date().getFullYear();
+    document.getElementById('updated').textContent =
+      new Date().toLocaleDateString('zh-CN', { year:'numeric', month:'long' });
+
+    /* ── Minimal QR-code renderer via public API ───── */
+    (function buildQR() {
+      const contact = 'zhangming@university.edu.cn';
+      const api = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(contact)}&bgcolor=161b22&color=58a6ff&ecc=M`;
+      const wrap = document.getElementById('qr-code');
+      const img = document.createElement('img');
+      img.src = api;
+      img.alt = '联系二维码';
+      img.width = 140; img.height = 140;
+      img.style.borderRadius = '8px';
+      // Remove the canvas placeholder and insert img
+      wrap.innerHTML = '';
+      wrap.appendChild(img);
+    })();
+
+    /* ── Intersection Observer: fade-in sections ───── */
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.08 });
+
+    document.querySelectorAll('section').forEach(s => {
+      s.style.opacity = '0';
+      s.style.transform = 'translateY(18px)';
+      s.style.transition = 'opacity .55s ease, transform .55s ease';
+      observer.observe(s);
+    });
+
+    /* ── Active nav highlight ──────────────────────── */
+    const navLinks = document.querySelectorAll('nav ul li a');
+    const sections = document.querySelectorAll('section[id]');
+    window.addEventListener('scroll', () => {
+      let cur = '';
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 80) cur = s.id;
+      });
+      navLinks.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + cur);
+      });
+    });
+  </script>
+</body>
+</html>
